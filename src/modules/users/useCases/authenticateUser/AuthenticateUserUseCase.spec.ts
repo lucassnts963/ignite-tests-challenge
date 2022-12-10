@@ -1,33 +1,32 @@
 import { InMemoryUsersRepository } from "../../repositories/in-memory/InMemoryUsersRepository";
+import { CreateUserUseCase } from "../createUser/CreateUserUseCase";
 import { AuthenticateUserUseCase } from "./AuthenticateUserUseCase";
 import { IncorrectEmailOrPasswordError } from "./IncorrectEmailOrPasswordError";
 
 let inMemoryUsersRepository: InMemoryUsersRepository;
+let createUserUseCase: CreateUserUseCase;
 let authenticateUserUseCase: AuthenticateUserUseCase;
 
 describe("Authenticate User", () => {
   beforeEach(() => {
     inMemoryUsersRepository = new InMemoryUsersRepository();
+    createUserUseCase = new CreateUserUseCase(inMemoryUsersRepository);
     authenticateUserUseCase = new AuthenticateUserUseCase(
       inMemoryUsersRepository
     );
   });
 
   it("should be able to authenticate a user", async () => {
-    const user = await inMemoryUsersRepository.create({
+    await createUserUseCase.execute({
       name: "John Doe",
       email: "sample@email.com",
       password: "123456",
     });
 
-    console.log(user);
-
     const auth = await authenticateUserUseCase.execute({
       email: "sample@email.com",
       password: "123456",
     });
-
-    console.log(auth);
 
     expect(auth).toHaveProperty("token");
     expect(auth).toHaveProperty("user");
